@@ -23,6 +23,21 @@ app.get('/api/temperature/:deviceId', async (req, res) => {
         const { deviceId } = req.params;
         const { start, end } = req.query;
         
+        // First check if device exists
+        const { data: deviceExists, error: deviceError } = await supabase
+            .from('temperature_readings')
+            .select('*')
+            .eq('device_id', deviceId)
+            .limit(1);
+
+        if (deviceError) {
+            throw deviceError;
+        }
+
+        if (!deviceExists || deviceExists.length === 0) {
+            return res.status(404).json({ error: 'Device not found' });
+        }
+        
         const now = new Date();
         const defaultFrom = new Date(now);
         defaultFrom.setHours(now.getHours() - DEFAULT_TIME_RANGE_HOURS);
@@ -78,10 +93,16 @@ app.get('/api/temperature/:deviceId', async (req, res) => {
         
         res.json(response);
     } catch (error) {
+        console.log('Error in temperature endpoint:', error);
         res.status(500).json({ error: 'Error fetching data' });
     }
 });
 
-app.listen(port, () => {
+// Only start the server if this file is run directly
+if (require.main === module) {
+  app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-}); 
+  });
+}
+
+module.exports = app; 
