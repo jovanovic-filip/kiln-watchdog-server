@@ -5,7 +5,7 @@ const { createClient } = require('@supabase/supabase-js');
 
 const DEFAULT_TIME_RANGE_HOURS = 3;
 const MAX_TIME_RANGE_HOURS = 7 * 24;
-const MAX_DATA_POINTS = 250;
+const MAX_DATA_POINTS = 500;
 
 const app = express();
 const port = process.env.PORT || 3000;
